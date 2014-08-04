@@ -1,0 +1,44 @@
+/ip firewall address-list
+add address=192.168.1.0/24 comment="" disabled=no list=lanNET
+add address=192.168.4.0/24 comment="" disabled=no list=proxyNET
+
+/ip fi nat
+add action=dst-nat chain=dstnat comment=TRANSPARENT-proxy disabled=no \
+dst-address-list=!proxyNET dst-port=80,8080,3128 in-interface=lokal \
+protocol=tcp to-addresses=192.168.4.2 to-ports=3128
+
+
+/ip fi ma
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-address=203.89.146.0/23 dst-port=39190 comment="Point Blank"
+
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=udp dst-address=203.89.146.0/23 dst-port=40000-40010
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=18901-18909 comment="Ayo Dance"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-address=203.89.147.0/24 dst-port=4300 comment="Atlantica"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=10009 comment="Cross Fire"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=udp dst-port=12060-12070 comment="Cross Fire"
+
+
+
+
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=6000-6152 comment="DOTA"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=19000 comment="Youlgang"
+
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=27780 comment="RF"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=29000 comment="PW"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=9600 comment="CK2"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=15002 comment="LUNA"
+add chain=game action=mark-connection new-connection-mark=Game passthrough=yes protocol=tcp dst-port=15001 comment="Cabal"
+
+
+
+add chain=game action=mark-packet new-packet-mark=Game_pkt passthrough=no connection-mark=Game
+
+add chain=prerouting action=jump jump-target=game
+
+
+
+add name="Game" kind=pcq pcq-rate=0 pcq-limit=50 pcq-classifier=src-address,dst-address,src-port,dst-port pcq-total-limit=2000
+
+
+
+add name="Game" parent=global-total packet-mark=Game_pkt limit-at=0 queue=Game priority=1 max-limit=0 burst-limit=0 burst-threshold=0 burst-time=0s

@@ -1,0 +1,21 @@
+/radius add service=hotspot address=127.0.0.1 secret=123456
+
+seting profile hsprof1 supaya menggunakan Radius Server
+/ip hotspot profile set hsprof1 use-radius=yes
+
+
+/tool user-manager customer add login=admin1 password=123456 permissions=owner
+
+/tool user-manager router add customer=admin1 ip-address=127.0.0.1 shared-secret=123456
+
+/tool user-manager customer add login=admin1 password=123456 permissions=owner
+
+
+/ip hotspot walled-garden
+add action=allow disabled=no dst-host=*sp1.yahoo.com dst-port=80-4767
+add action=allow disabled=no dst-host=wgweb.msg.yahoo.com dst-port=80
+add action=allow disabled=no dst-host=us.yimg.com dst-port=80
+add action=allow disabled=no dst-host=opi.wgweb.msg.yahoo.com dst-port=80
+add action=allow disabled=no dst-host=l.yimg.com dst-port=80
+add action=allow disabled=no dst-host=img.msg.yahoo.com dst-port=80
+add action=allow disabled=no dst-host=abyfine.com dst-port=80

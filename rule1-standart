@@ -1,0 +1,30 @@
+/ip fi ma
+add action=mark-connection chain=forward comment=DownloadfromProxy-1 connection-bytes=\
+0 disabled=no in-interface=speedy1 \
+new-connection-mark=DownProxy-1 out-interface=proxy passthrough=yes protocol=tcp
+add action=mark-packet chain=forward comment="" connection-mark=DownProxy-1 \
+disabled=no in-interface=speedy1 new-packet-mark=DownloadProxy-1\
+out-interface=proxy passthrough=no protocol=tcp
+
+/ip fi ma
+add action=mark-connection chain=forward comment=DownloadfromProxy-2 connection-bytes=\
+0 disabled=no in-interface=speedy2 \
+new-connection-mark=DownProxy-2 out-interface=proxy passthrough=yes protocol=tcp
+add action=mark-packet chain=forward comment="" connection-mark=DownProxy-2 \
+disabled=no in-interface=speedy2 new-packet-mark=DownloadProxy-2\
+out-interface=proxy passthrough=no protocol=tcp
+
+
+/que ty
+add kind=pcq name=Download pcq-classifier=dst-address pcq-limit=50 pcq-rate=\
+512000 pcq-total-limit=2000
+
+/que tr
+add burst-limit=0 burst-threshold=0 burst-time=0s disabled=no limit-at=0 \
+max-limit=1024000 name=LimitDownloadfromProxy-1 packet-mark=DownloadProxy-1 parent=global-out priority=8 \
+queue=Download
+
+/que tr
+add burst-limit=0 burst-threshold=0 burst-time=0s disabled=no limit-at=0 \
+max-limit=1024000 name=LimitDownloadfromProxy-2 packet-mark=DownloadProxy-2 parent=global-out priority=8 \
+queue=Download
